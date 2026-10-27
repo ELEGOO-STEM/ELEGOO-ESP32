@@ -18,7 +18,21 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 INDEX_NAME = "package_elegoo_esp32_index.json"
 LEGACY_INDEX_NAME = "package_elegoo_esp32c6_index.json"
-BOARD_ID = "elegoo_esp32c6"
+BOARDS = {
+    "elegoo_esp32c6": {
+        "upstream": "esp32c6", "name": "ELEGOO-ESP32-C6", "macro": "ELEGOO_ESP32C6",
+        "properties": {"build.flash_mode": "dio", "build.boot": "dio"},
+        "menus": {"CDCOnBoot": "cdc", "FlashMode": "dio"},
+    },
+    "elegoo_esp32s3_bot_cam": {
+        "upstream": "esp32s3", "name": "ELEGOO ESP32-S3 BOT CAM", "macro": "ELEGOO_ESP32S3_BOT_CAM",
+        "properties": {"build.flash_size": "8MB", "build.boot": "qio",
+                       "build.partitions": "default_8MB",
+                       "build.psram_type": "opi", "build.defines": "-DBOARD_HAS_PSRAM"},
+        "menus": {"CDCOnBoot": "cdc", "FlashMode": "qio", "FlashSize": "8M",
+                  "PSRAM": "opi", "PartitionScheme": "default_8MB"},
+    },
+}
 PACKAGER = "elegoo"
 PLATFORM_NAME = "ELEGOO"
 
@@ -53,38 +67,40 @@ def obtain_archive(metadata, cache, supplied):
 
 
 def board_definitions(upstream):
-    # Keep upstream C6 menus/recipes, and only expose this board in the IDE.
-    lines = [line for line in upstream.splitlines() if line.startswith("esp32c6.")]
-    if not lines:
-        raise ValueError("Pinned upstream archive has no esp32c6 board")
-    lines = [line.replace("esp32c6.", BOARD_ID + ".", 1) for line in lines]
-    replacements = {
-        "name": "ELEGOO-ESP32-C6",
-        "build.variant": BOARD_ID,
-        "build.board": "ELEGOO_ESP32C6",
-        "build.cdc_on_boot": "1",
-        "build.flash_mode": "dio",
-        "build.boot": "dio",
-    }
-    for key, value in replacements.items():
-        prop = f"{BOARD_ID}.{key}="
-        if not any(line.startswith(prop) for line in lines):
-            raise ValueError(f"Missing upstream board property: {key}")
-        lines = [prop + value if line.startswith(prop) else line for line in lines]
-    # Arduino selects the first menu option, overriding build.* defaults.
-    # Therefore move the entire enabled-CDC and DIO option groups first.
-    for menu, preferred in (("CDCOnBoot", "cdc"), ("FlashMode", "dio")):
-        prefix = f"{BOARD_ID}.menu.{menu}."
-        start = next(i for i, line in enumerate(lines) if line.startswith(prefix))
-        options = [line for line in lines if line.startswith(prefix)]
-        options.sort(key=lambda line: not line.startswith(prefix + preferred + ".")
-                     and not line.startswith(prefix + preferred + "="))
-        lines = [line for line in lines if not line.startswith(prefix)]
-        lines[start:start] = options
-    used_menus = {line.split(".")[2] for line in lines if line.startswith(f"{BOARD_ID}.menu.")}
+    # Retain pinned upstream menus/recipes, exposing only ELEGOO variants.
+    all_lines = []
+    used_menus = set()
+    for board_id, config in BOARDS.items():
+        source = config["upstream"]
+        lines = [line.replace(source + ".", board_id + ".", 1)
+                 for line in upstream.splitlines() if line.startswith(source + ".")]
+        if not lines:
+            raise ValueError(f"Pinned upstream archive has no {source} board")
+        replacements = {"name": config["name"], "build.variant": board_id,
+                        "build.board": config["macro"], "build.cdc_on_boot": "1",
+                        **config["properties"]}
+        for key, value in replacements.items():
+            prop = f"{board_id}.{key}="
+            if not any(line.startswith(prop) for line in lines):
+                raise ValueError(f"Missing upstream board property: {source}.{key}")
+            lines = [prop + value if line.startswith(prop) else line for line in lines]
+        # Arduino selects the first menu option, overriding build.* defaults.
+        # Move complete option groups so IDE defaults match the fitted module.
+        for menu, preferred in config["menus"].items():
+            prefix = f"{board_id}.menu.{menu}."
+            if not any(line.startswith(prefix + preferred + "=") for line in lines):
+                raise ValueError(f"Missing upstream menu option: {source}.{menu}.{preferred}")
+            start = next(i for i, line in enumerate(lines) if line.startswith(prefix))
+            options = [line for line in lines if line.startswith(prefix)]
+            options.sort(key=lambda line: not line.startswith(prefix + preferred + ".")
+                         and not line.startswith(prefix + preferred + "="))
+            lines = [line for line in lines if not line.startswith(prefix)]
+            lines[start:start] = options
+        used_menus.update(line.split(".")[2] for line in lines if line.startswith(f"{board_id}.menu."))
+        all_lines.extend([""] + lines)
     menus = [line for line in upstream.splitlines()
              if line.startswith("menu.") and line.split(".", 1)[1].split("=", 1)[0] in used_menus]
-    return "# Generated from pinned Espressif ESP32-C6 configuration.\n" + "\n".join(menus + [""] + lines) + "\n"
+    return "# Generated from pinned Espressif ESP32-C6/S3 configurations.\n" + "\n".join(menus + all_lines) + "\n"
 
 
 def write_member(archive, name, data, executable=False):
@@ -118,22 +134,25 @@ def build_archive(upstream, output, version):
                 text = re.sub(r"^version=.*$", "version=" + version, text, count=1, flags=re.M)
                 data = text.encode("utf-8")
             write_member(target, f"{top}/{relative}", data, bool((item.external_attr >> 16) & 0o111))
-        write_member(target, f"{top}/variants/{BOARD_ID}/pins_arduino.h",
-                     (ROOT / f"variants/{BOARD_ID}/pins_arduino.h").read_bytes())
+        for board_id in BOARDS:
+            write_member(target, f"{top}/variants/{board_id}/pins_arduino.h",
+                         (ROOT / f"variants/{board_id}/pins_arduino.h").read_bytes())
         for path in sorted((ROOT / "examples").rglob("*.ino")):
             write_member(target, f"{top}/libraries/ElegooBoard/examples/{path.relative_to(ROOT / 'examples').as_posix()}",
                          path.read_bytes())
         write_member(target, f"{top}/libraries/ElegooBoard/library.properties",
                      f"name=ElegooBoard\nversion={version}\nauthor=Board contributors\nmaintainer=Board contributors\n"
-                     "sentence=Board verification example for ELEGOO-ESP32-C6.\n"
-                     "paragraph=Check USB serial, RGB LED, BOOT and I2C pin defaults.\n"
+                     "sentence=Board verification examples for ELEGOO ESP32 boards.\n"
+                     "paragraph=Check USB serial, LEDs, BOOT, I2C and the BOT CAM camera.\n"
                      "category=Other\narchitectures=esp32\n")
         write_member(target, f"{top}/ELEGOO_BOARD_NOTICE.txt",
-                     "Board: ELEGOO-ESP32-C6\n"
+                     "Boards: ELEGOO-ESP32-C6; ELEGOO ESP32-S3 BOT CAM\n"
                      "Based on Espressif Arduino-ESP32; upstream licenses retained.\n"
-                     "Board-specific changes: pin variant, board defaults, C6-only package metadata.\n"
-                     "RGB=GPIO8; BOOT=GPIO9; SDA=GPIO6; SCL=GPIO7; native USB CDC enabled.\n"
-                     "Flash defaults to 4MB; verify the fitted module before uploading.\n")
+                     "Board-specific changes: pin variants, board defaults and C6/S3 package metadata.\n"
+                     "C6: RGB=GPIO8; BOOT=GPIO9; SDA=GPIO6; SCL=GPIO7; Flash=4MB.\n"
+                     "BOT CAM: LED=GPIO46 (active low); BOOT=GPIO0; SDA=GPIO4; SCL=GPIO5.\n"
+                     "BOT CAM module: ESP32-S3-WROOM-1-N8R8; Flash=8MB QIO; PSRAM=8MB OPI.\n"
+                     "Native USB CDC enabled on both boards.\n")
 
 
 def main():
@@ -173,7 +192,7 @@ def main():
         "name": PLATFORM_NAME, "architecture": "esp32", "version": args.version,
         "category": "Contributed", "url": f"{base}/{archive_name}",
         "archiveFileName": archive_name, "checksum": "SHA-256:" + sha256(archive_path),
-        "size": str(archive_path.stat().st_size), "boards": [{"name": "ELEGOO-ESP32-C6"}],
+        "size": str(archive_path.stat().st_size), "boards": [{"name": item["name"]} for item in BOARDS.values()],
         "toolsDependencies": dependencies, "help": {"online": website},
     }
     package = {
