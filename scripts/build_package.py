@@ -57,7 +57,7 @@ def board_definitions(upstream):
         raise ValueError("Pinned upstream archive has no esp32c6 board")
     lines = [line.replace("esp32c6.", BOARD_ID + ".", 1) for line in lines]
     replacements = {
-        "name": "elegoo-esp32c6-board",
+        "name": "ELEGOO-ESP32-C6",
         "build.variant": BOARD_ID,
         "build.board": "ELEGOO_ESP32C6",
         "build.cdc_on_boot": "1",
@@ -93,7 +93,7 @@ def write_member(archive, name, data, executable=False):
 
 
 def build_archive(upstream, output, version):
-    top = f"elegoo-esp32c6-board-{version}"
+    top = f"ELEGOO-ESP32-C6-{version}"
     with zipfile.ZipFile(upstream) as source, zipfile.ZipFile(output, "w") as target:
         roots = {item.filename.split("/", 1)[0] for item in source.infolist()}
         if len(roots) != 1:
@@ -112,7 +112,7 @@ def build_archive(upstream, output, version):
                 data = board_definitions(data.decode("utf-8")).encode("utf-8")
             elif relative == "platform.txt":
                 text = data.decode("utf-8")
-                text = re.sub(r"^name=.*$", "name=elegoo-esp32c6-board", text, count=1, flags=re.M)
+                text = re.sub(r"^name=.*$", "name=ELEGOO-ESP32-C6", text, count=1, flags=re.M)
                 text = re.sub(r"^version=.*$", "version=" + version, text, count=1, flags=re.M)
                 data = text.encode("utf-8")
             write_member(target, f"{top}/{relative}", data, bool((item.external_attr >> 16) & 0o111))
@@ -122,12 +122,12 @@ def build_archive(upstream, output, version):
             write_member(target, f"{top}/libraries/ElegooBoard/examples/{path.relative_to(ROOT / 'examples').as_posix()}",
                          path.read_bytes())
         write_member(target, f"{top}/libraries/ElegooBoard/library.properties",
-                     "name=ElegooBoard\nversion=1.0.0\nauthor=Board contributors\nmaintainer=Board contributors\n"
-                     "sentence=Board verification example for elegoo-esp32c6-board.\n"
+                     f"name=ElegooBoard\nversion={version}\nauthor=Board contributors\nmaintainer=Board contributors\n"
+                     "sentence=Board verification example for ELEGOO-ESP32-C6.\n"
                      "paragraph=Check USB serial, RGB LED, BOOT and I2C pin defaults.\n"
                      "category=Other\narchitectures=esp32\n")
         write_member(target, f"{top}/ELEGOO_BOARD_NOTICE.txt",
-                     "Board: elegoo-esp32c6-board\n"
+                     "Board: ELEGOO-ESP32-C6\n"
                      "Based on Espressif Arduino-ESP32; upstream licenses retained.\n"
                      "Board-specific changes: pin variant, board defaults, C6-only package metadata.\n"
                      "RGB=GPIO8; BOOT=GPIO9; SDA=GPIO6; SCL=GPIO7; native USB CDC enabled.\n"
@@ -163,19 +163,19 @@ def main():
     locked = json.loads((ROOT / "config/upstream.json").read_text(encoding="utf-8"))
     upstream = obtain_archive(locked["platform"], args.cache_dir, args.upstream_archive)
     args.output.mkdir(parents=True, exist_ok=True)
-    archive_name = f"elegoo-esp32c6-board-{args.version}.zip"
+    archive_name = f"ELEGOO-ESP32-C6-{args.version}.zip"
     archive_path = args.output / archive_name
     build_archive(upstream, archive_path, args.version)
     dependencies = [dict(dep, packager=PACKAGER) for dep in locked["platform"]["toolsDependencies"]]
     platform = {
-        "name": "elegoo-esp32c6-board", "architecture": "esp32", "version": args.version,
+        "name": "ELEGOO-ESP32-C6", "architecture": "esp32", "version": args.version,
         "category": "Contributed", "url": f"{base}/{archive_name}",
         "archiveFileName": archive_name, "checksum": "SHA-256:" + sha256(archive_path),
-        "size": str(archive_path.stat().st_size), "boards": [{"name": "elegoo-esp32c6-board"}],
+        "size": str(archive_path.stat().st_size), "boards": [{"name": "ELEGOO-ESP32-C6"}],
         "toolsDependencies": dependencies, "help": {"online": website},
     }
     package = {
-        "name": PACKAGER, "maintainer": "elegoo-esp32c6-board contributors",
+        "name": PACKAGER, "maintainer": "ELEGOO-ESP32-C6 contributors",
         "websiteURL": website, "email": "", "help": {"online": website},
         "platforms": [platform], "tools": copy.deepcopy(locked["tools"]),
     }

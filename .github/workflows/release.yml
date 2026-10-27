@@ -43,4 +43,4 @@ jobs:
           BOARD_TAG: ${{ github.ref_name }}
         run: |
           cp dist/install-url.txt tmp/release-notes.txt
-          gh release create "$BOARD_TAG" dist/*.zip dist/package_elegoo_esp32c6_index.json dist/SHA256SUMS --latest --title "elegoo-esp32c6-board $BOARD_TAG" --notes-file tmp/release-notes.txt
+          gh release create "$BOARD_TAG" dist/*.zip dist/package_elegoo_esp32c6_index.json dist/SHA256SUMS --latest --title "ELEGOO-ESP32-C6 $BOARD_TAG" --notes-file tmp/release-notes.txt

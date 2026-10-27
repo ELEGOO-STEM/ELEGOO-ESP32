@@ -13,7 +13,7 @@ void setup() {
   delay(1500);
   pinMode(BOOT_BUILTIN, INPUT_PULLUP);
   Wire.begin();
-  Serial.println("elegoo-esp32c6-board");
+  Serial.println("ELEGOO-ESP32-C6");
   Serial.printf("Flash detected: %u bytes\n", ESP.getFlashChipSize());
   Serial.printf("I2C: SDA=%u SCL=%u; RGB=%u; BOOT=%u\n",
                 SDA, SCL, PIN_RGB_LED, BOOT_BUILTIN);
