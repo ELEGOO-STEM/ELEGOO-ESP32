@@ -12,7 +12,8 @@ import zipfile
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-INDEX_NAME = "package_elegoo_esp32c6_index.json"
+INDEX_NAME = "package_elegoo_esp32_index.json"
+LEGACY_INDEX_NAME = "package_elegoo_esp32c6_index.json"
 
 
 def properties(text):
@@ -32,6 +33,8 @@ def main():
     parser.add_argument("--work-dir", type=Path, default=ROOT / "tmp/verification")
     args = parser.parse_args()
     index = json.loads((args.dist / INDEX_NAME).read_text(encoding="utf-8"))
+    require((args.dist / LEGACY_INDEX_NAME).read_bytes() == (args.dist / INDEX_NAME).read_bytes(),
+            "Legacy installation index must match the current index")
     package, = index["packages"]
     platform = package["platforms"][0]
     require(platform["name"] == "ELEGOO", "Incorrect Boards Manager platform name")

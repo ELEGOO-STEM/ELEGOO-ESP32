@@ -21,7 +21,7 @@ jobs:
         run: |
           mkdir -p tmp
           if gh release list --json tagName --jq '.[].tagName' | grep -q .; then
-            gh release download --pattern package_elegoo_esp32c6_index.json --dir tmp
+            gh release download --pattern 'package_elegoo_esp32*_index.json' --dir tmp
           fi
       - name: Build pinned core and package index
         env:
@@ -30,7 +30,9 @@ jobs:
         run: |
           version="${BOARD_TAG#v}"
           previous=()
-          if [ -f tmp/package_elegoo_esp32c6_index.json ]; then
+          if [ -f tmp/package_elegoo_esp32_index.json ]; then
+            previous=(--previous-index tmp/package_elegoo_esp32_index.json)
+          elif [ -f tmp/package_elegoo_esp32c6_index.json ]; then
             previous=(--previous-index tmp/package_elegoo_esp32c6_index.json)
           fi
           python scripts/build_package.py --repository "$BOARD_REPOSITORY" --version "$version" "${previous[@]}"
@@ -43,4 +45,4 @@ jobs:
           BOARD_TAG: ${{ github.ref_name }}
         run: |
           cp dist/install-url.txt tmp/release-notes.txt
-          gh release create "$BOARD_TAG" dist/*.zip dist/package_elegoo_esp32c6_index.json dist/SHA256SUMS --latest --title "ELEGOO $BOARD_TAG" --notes-file tmp/release-notes.txt
+          gh release create "$BOARD_TAG" dist/*.zip dist/package_elegoo_esp32*_index.json dist/SHA256SUMS --latest --title "ELEGOO-ESP32 $BOARD_TAG" --notes-file tmp/release-notes.txt

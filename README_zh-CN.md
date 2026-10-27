@@ -1,10 +1,12 @@
-# ELEGOO-ESP32-C6
+# ELEGOO-ESP32
 
 [English](README.md) | 简体中文
 
-ELEGOO-ESP32-C6 是一款基于 ESP32-C6 的开发板，支持使用 Arduino IDE 进行编程。板载 USB Type-C 接口、RGB LED、BOOT 和 RST 按键，提供 GPIO、I²C、SPI 和 UART 接口，适用于电子教学、传感器应用和物联网项目。
+ELEGOO ESP32 系列开发板的 Arduino IDE 支持包。当前支持：**ELEGOO-ESP32-C6**。
 
-## 开发板概览
+## ELEGOO-ESP32-C6
+
+ELEGOO-ESP32-C6 板载 USB Type-C 接口、RGB LED、BOOT 和 RST 按键，提供 GPIO、I²C、SPI 和 UART 接口，适用于电子教学、传感器应用和物联网项目。
 
 | 项目 | 说明 |
 | --- | --- |
@@ -20,7 +22,7 @@ ELEGOO-ESP32-C6 是一款基于 ESP32-C6 的开发板，支持使用 Arduino IDE
 1. 打开 Arduino IDE，进入 **文件 → 首选项**，在 **附加开发板管理器网址** 中添加以下链接：
 
    ```text
-   https://github.com/ELEGOO-STEM/ELEGOO-ESP32-C6/releases/latest/download/package_elegoo_esp32c6_index.json
+   https://github.com/ELEGOO-STEM/ELEGOO-ESP32/releases/latest/download/package_elegoo_esp32_index.json
    ```
 
 2. 打开 **开发板管理器**，搜索 `ELEGOO`，安装 **ELEGOO** 开发板包。
@@ -49,5 +51,5 @@ USB 串口默认开启，可直接使用 `Serial`；调用 `Wire.begin()` 即使
 
 ## 硬件资料
 
-- [开发板原理图](doc/ESP32C6.pdf)
-- [项目主页](https://github.com/ELEGOO-STEM/ELEGOO-ESP32-C6)
+- [ELEGOO-ESP32-C6 原理图](doc/ESP32C6.pdf)
+- [项目主页](https://github.com/ELEGOO-STEM/ELEGOO-ESP32)

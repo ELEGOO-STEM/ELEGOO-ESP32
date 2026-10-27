@@ -1,6 +1,6 @@
 {
-  "name": "ELEGOO-ESP32-C6",
-  "version": "1.0.2",
-  "description": "Arduino Boards Manager package for ELEGOO boards",
+  "name": "ELEGOO-ESP32",
+  "version": "1.0.3",
+  "description": "Arduino Boards Manager package for ELEGOO ESP32 development boards",
   "private": true
 }

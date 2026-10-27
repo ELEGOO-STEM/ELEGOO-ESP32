@@ -1,10 +1,12 @@
-# ELEGOO-ESP32-C6
+# ELEGOO-ESP32
 
 English | [简体中文](README_zh-CN.md)
 
-The ELEGOO-ESP32-C6 is an ESP32-C6 development board programmable with the Arduino IDE. It features a USB Type-C connector, an RGB LED, BOOT and RST buttons, and GPIO, I²C, SPI, and UART interfaces for electronics education, sensor applications, and IoT projects.
+Arduino IDE support for ELEGOO ESP32 development boards. Currently supported: **ELEGOO-ESP32-C6**.
 
-## Board Overview
+## ELEGOO-ESP32-C6
+
+The ELEGOO-ESP32-C6 features a USB Type-C connector, an RGB LED, BOOT and RST buttons, and GPIO, I²C, SPI, and UART interfaces for electronics education, sensor applications, and IoT projects.
 
 | Feature | Description |
 | --- | --- |
@@ -20,7 +22,7 @@ The ELEGOO-ESP32-C6 is an ESP32-C6 development board programmable with the Ardui
 1. Open the Arduino IDE and go to **File → Preferences**. Add the following URL to **Additional Boards Manager URLs**:
 
    ```text
-   https://github.com/ELEGOO-STEM/ELEGOO-ESP32-C6/releases/latest/download/package_elegoo_esp32c6_index.json
+   https://github.com/ELEGOO-STEM/ELEGOO-ESP32/releases/latest/download/package_elegoo_esp32_index.json
    ```
 
 2. Open **Boards Manager**, search for `ELEGOO`, and install the **ELEGOO** package.
@@ -49,5 +51,5 @@ USB serial is enabled by default and available through `Serial`. Calling `Wire.b
 
 ## Resources
 
-- [Board schematic](doc/ESP32C6.pdf)
-- [Project repository](https://github.com/ELEGOO-STEM/ELEGOO-ESP32-C6)
+- [ELEGOO-ESP32-C6 schematic](doc/ESP32C6.pdf)
+- [Project repository](https://github.com/ELEGOO-STEM/ELEGOO-ESP32)

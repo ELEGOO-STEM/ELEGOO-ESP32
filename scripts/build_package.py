@@ -16,7 +16,8 @@ import zipfile
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-INDEX_NAME = "package_elegoo_esp32c6_index.json"
+INDEX_NAME = "package_elegoo_esp32_index.json"
+LEGACY_INDEX_NAME = "package_elegoo_esp32c6_index.json"
 BOARD_ID = "elegoo_esp32c6"
 PACKAGER = "elegoo"
 PLATFORM_NAME = "ELEGOO"
@@ -94,7 +95,7 @@ def write_member(archive, name, data, executable=False):
 
 
 def build_archive(upstream, output, version):
-    top = f"ELEGOO-ESP32-C6-{version}"
+    top = f"ELEGOO-ESP32-{version}"
     with zipfile.ZipFile(upstream) as source, zipfile.ZipFile(output, "w") as target:
         roots = {item.filename.split("/", 1)[0] for item in source.infolist()}
         if len(roots) != 1:
@@ -164,7 +165,7 @@ def main():
     locked = json.loads((ROOT / "config/upstream.json").read_text(encoding="utf-8"))
     upstream = obtain_archive(locked["platform"], args.cache_dir, args.upstream_archive)
     args.output.mkdir(parents=True, exist_ok=True)
-    archive_name = f"ELEGOO-ESP32-C6-{args.version}.zip"
+    archive_name = f"ELEGOO-ESP32-{args.version}.zip"
     archive_path = args.output / archive_name
     build_archive(upstream, archive_path, args.version)
     dependencies = [dict(dep, packager=PACKAGER) for dep in locked["platform"]["toolsDependencies"]]
@@ -186,7 +187,9 @@ def main():
         package["platforms"] += [item for item in old["platforms"] if item["version"] != args.version]
         known = {(item["name"], item["version"]) for item in package["tools"]}
         package["tools"] += [item for item in old["tools"] if (item["name"], item["version"]) not in known]
-    (args.output / INDEX_NAME).write_text(json.dumps({"packages": [package]}, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    index_text = json.dumps({"packages": [package]}, ensure_ascii=False, indent=2) + "\n"
+    for index_name in (INDEX_NAME, LEGACY_INDEX_NAME):
+        (args.output / index_name).write_text(index_text, encoding="utf-8")
     (args.output / "SHA256SUMS").write_text(f"{sha256(archive_path)}  {archive_name}\n", encoding="utf-8")
     (args.output / "install-url.txt").write_text(index_url + "\n", encoding="utf-8")
     print(f"Board archive: {archive_path}")
