@@ -23,8 +23,8 @@ ELEGOO-ESP32-C6 是一款基于 ESP32-C6 的开发板，支持使用 Arduino IDE
    https://github.com/ELEGOO-STEM/ELEGOO-ESP32-C6/releases/latest/download/package_elegoo_esp32c6_index.json
    ```
 
-2. 打开 **开发板管理器**，搜索 `ELEGOO-ESP32-C6`，点击 **安装**。
-3. 安装完成后，在 **工具 → 开发板 → ELEGOO-ESP32-C6** 中选择 **ELEGOO-ESP32-C6**。
+2. 打开 **开发板管理器**，搜索 `ELEGOO`，安装 **ELEGOO** 开发板包。
+3. 安装完成后，选择 **工具 → 开发板 → ELEGOO → ELEGOO-ESP32-C6**。
 
 ## 上传第一个程序
 

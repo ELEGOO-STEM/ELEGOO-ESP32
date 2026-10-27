@@ -34,6 +34,7 @@ def main():
     index = json.loads((args.dist / INDEX_NAME).read_text(encoding="utf-8"))
     package, = index["packages"]
     platform = package["platforms"][0]
+    require(platform["name"] == "ELEGOO", "Incorrect Boards Manager platform name")
     archive_path = args.dist / platform["archiveFileName"]
     with archive_path.open("rb") as stream:
         digest = hashlib.file_digest(stream, "sha256").hexdigest()
@@ -50,13 +51,16 @@ def main():
         board = properties(board_text)
         require([key for key in board if key.endswith(".name")] == ["elegoo_esp32c6.name"],
                 "Package must expose exactly one board")
+        require(board["elegoo_esp32c6.name"] == "ELEGOO-ESP32-C6", "Incorrect board menu entry")
         for key, value in {"build.mcu": "esp32c6", "build.variant": "elegoo_esp32c6",
                            "build.cdc_on_boot": "1", "build.board": "ELEGOO_ESP32C6"}.items():
             require(board["elegoo_esp32c6." + key] == value, f"Incorrect property {key}")
         for menu, first in (("CDCOnBoot", "cdc"), ("FlashMode", "dio")):
             choices = [key for key in board if key.startswith(f"elegoo_esp32c6.menu.{menu}.")]
             require(choices[0] == f"elegoo_esp32c6.menu.{menu}.{first}", "Incorrect default menu option")
-        require(properties(archive.read(f"{root}/platform.txt").decode())["version"] == platform["version"],
+        platform_properties = properties(archive.read(f"{root}/platform.txt").decode())
+        require(platform_properties["name"] == "ELEGOO", "Incorrect board menu group")
+        require(platform_properties["version"] == platform["version"],
                 "Platform version mismatch")
         require(archive.read(f"{root}/variants/elegoo_esp32c6/pins_arduino.h") ==
                 (ROOT / "variants/elegoo_esp32c6/pins_arduino.h").read_bytes(), "Variant differs from source")
@@ -110,6 +114,8 @@ def main():
                 print(result.stdout, flush=True)
             require(result.returncode == 0, f"Arduino CLI failed (log: {work / f'{number}-{command[0]}.log'})")
         details = json.loads((work / "3-board.log").read_text(encoding="utf-8"))
+        require(details["name"] == "ELEGOO-ESP32-C6", "Installed board has an incorrect menu entry")
+        require(details["platform"]["name"] == "ELEGOO", "Installed board has an incorrect menu group")
         options = {option["option"]: next(value["value"] for value in option["values"] if value.get("selected"))
                    for option in details["config_options"]}
         require(options["CDCOnBoot"] == "cdc", "IDE default did not enable USB CDC")

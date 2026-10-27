@@ -19,6 +19,7 @@ ROOT = Path(__file__).resolve().parents[1]
 INDEX_NAME = "package_elegoo_esp32c6_index.json"
 BOARD_ID = "elegoo_esp32c6"
 PACKAGER = "elegoo"
+PLATFORM_NAME = "ELEGOO"
 
 
 def sha256(path):
@@ -112,7 +113,7 @@ def build_archive(upstream, output, version):
                 data = board_definitions(data.decode("utf-8")).encode("utf-8")
             elif relative == "platform.txt":
                 text = data.decode("utf-8")
-                text = re.sub(r"^name=.*$", "name=ELEGOO-ESP32-C6", text, count=1, flags=re.M)
+                text = re.sub(r"^name=.*$", "name=" + PLATFORM_NAME, text, count=1, flags=re.M)
                 text = re.sub(r"^version=.*$", "version=" + version, text, count=1, flags=re.M)
                 data = text.encode("utf-8")
             write_member(target, f"{top}/{relative}", data, bool((item.external_attr >> 16) & 0o111))
@@ -168,14 +169,14 @@ def main():
     build_archive(upstream, archive_path, args.version)
     dependencies = [dict(dep, packager=PACKAGER) for dep in locked["platform"]["toolsDependencies"]]
     platform = {
-        "name": "ELEGOO-ESP32-C6", "architecture": "esp32", "version": args.version,
+        "name": PLATFORM_NAME, "architecture": "esp32", "version": args.version,
         "category": "Contributed", "url": f"{base}/{archive_name}",
         "archiveFileName": archive_name, "checksum": "SHA-256:" + sha256(archive_path),
         "size": str(archive_path.stat().st_size), "boards": [{"name": "ELEGOO-ESP32-C6"}],
         "toolsDependencies": dependencies, "help": {"online": website},
     }
     package = {
-        "name": PACKAGER, "maintainer": "ELEGOO-ESP32-C6 contributors",
+        "name": PACKAGER, "maintainer": PLATFORM_NAME,
         "websiteURL": website, "email": "", "help": {"online": website},
         "platforms": [platform], "tools": copy.deepcopy(locked["tools"]),
     }

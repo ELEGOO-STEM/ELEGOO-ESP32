@@ -23,8 +23,8 @@ The ELEGOO-ESP32-C6 is an ESP32-C6 development board programmable with the Ardui
    https://github.com/ELEGOO-STEM/ELEGOO-ESP32-C6/releases/latest/download/package_elegoo_esp32c6_index.json
    ```
 
-2. Open **Boards Manager**, search for `ELEGOO-ESP32-C6`, and click **Install**.
-3. Select **ELEGOO-ESP32-C6** under **Tools → Board → ELEGOO-ESP32-C6**.
+2. Open **Boards Manager**, search for `ELEGOO`, and install the **ELEGOO** package.
+3. Select **Tools → Board → ELEGOO → ELEGOO-ESP32-C6**.
 
 ## Upload Your First Sketch
 
