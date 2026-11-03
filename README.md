@@ -8,6 +8,8 @@ Arduino IDE support for ELEGOO ESP32 development boards. Supported boards: **ELE
 
 The ELEGOO-ESP32-C6 features a USB Type-C connector, an RGB LED, BOOT and RST buttons, and GPIO, I²C, SPI, and UART interfaces for electronics education, sensor applications, and IoT projects.
 
+![ELEGOO-ESP32-C6 pinout](doc/C6-pinout.png)
+
 | Feature | Description |
 | --- | --- |
 | Board name | `ELEGOO-ESP32-C6` |

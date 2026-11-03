@@ -8,6 +8,8 @@ ELEGOO ESP32 系列开发板的 Arduino IDE 支持包。当前支持：**ELEGOO-
 
 ELEGOO-ESP32-C6 板载 USB Type-C 接口、RGB LED、BOOT 和 RST 按键，提供 GPIO、I²C、SPI 和 UART 接口，适用于电子教学、传感器应用和物联网项目。
 
+![ELEGOO-ESP32-C6 引脚图](doc/C6-pinout.png)
+
 | 项目 | 说明 |
 | --- | --- |
 | 开发板名称 | `ELEGOO-ESP32-C6` |
